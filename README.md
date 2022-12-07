@@ -2,6 +2,8 @@
 
 Tetris on the Galactic Unicorn!
 
+![demo](./doc/demo1.gif)
+
 ## How to Flash
 
 Copy the [galactic_tetris.uf2](./build/galactic_tetris.uf2) file to the automatically mounted volume when the Unicorn is in `BOOTSEL` mode.
