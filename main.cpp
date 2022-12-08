@@ -324,11 +324,11 @@ int main() {
         if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_UP)) {
           speed -= speed_step;
           if (speed < min_speed) speed = min_speed;
-          sleep_ms(150);
+          else sleep_ms(150);
         } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_DOWN)) {
           speed += speed_step;
           if (speed > start_speed) speed = start_speed;
-          sleep_ms(150);
+          else sleep_ms(150);
         }
 
         // use a vi-like keymap
