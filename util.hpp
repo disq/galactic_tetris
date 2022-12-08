@@ -16,7 +16,8 @@ void init_hue_map();
 void from_hsv(float h, float s, float v, uint8_t &r, uint8_t &g, uint8_t &b);
 void text(std::string t, Point p, float s = 1.0f, float a = 1.0f);
 void rainbow_text(std::string t, uint32_t delay_ms = 0, bool (*check_func)() = nullptr);
-void outline_text(std::string text, bool reverse = false, uint8_t r = 128, uint8_t g = 128, uint8_t b = 128);
+void outline_text(std::string text, bool reverse = false, char colour = 255);
+void pen_from_byte(char val);
 
 extern PicoGraphics_PenRGB888 graphics;
 extern GalacticUnicorn galactic_unicorn;

@@ -85,18 +85,14 @@ void rainbow_text(std::string t, uint32_t delay_ms, bool (*check_func)()) {
   }
 }
 
-void outline_text(std::string text, bool reverse, uint8_t r, uint8_t g, uint8_t b) {
+void outline_text(std::string text, bool reverse, char colour) {
   graphics.set_font("bitmap8");
 //  uint8_t v = (sin(float(millis()) / 100.0f) + 1.0f) * 127.0f;
   uint w = graphics.measure_text(text, 1);
 
   int x = 53 / 2 - w / 2 + 1, y = 2;
 
-  if (reverse) {
-    graphics.set_pen(r, g, b);
-  } else {
-    graphics.set_pen(0, 0, 0);
-  }
+  pen_from_byte(reverse ? colour : 0);
   graphics.text(text, Point(x - 1, y - 1), -1, 1);
   graphics.text(text, Point(x    , y - 1), -1, 1);
   graphics.text(text, Point(x + 1, y - 1), -1, 1);
@@ -106,10 +102,23 @@ void outline_text(std::string text, bool reverse, uint8_t r, uint8_t g, uint8_t 
   graphics.text(text, Point(x    , y + 1), -1, 1);
   graphics.text(text, Point(x + 1, y + 1), -1, 1);
 
-  if (!reverse) {
-    graphics.set_pen(r, g, b);
-  } else {
-    graphics.set_pen(0, 0, 0);
-  }
+  pen_from_byte(reverse ? 0: colour);
   graphics.text(text, Point(x, y), -1, 1);
+}
+
+void pen_from_byte(char val) {
+  if (val == 0) {
+    graphics.set_pen(0, 0, 0);
+    return;
+  }
+
+  uint8_t val_r = (val & 0b01100000);
+  uint8_t val_g = (val & 0b00011100) << 2;
+  uint8_t val_b = (val & 0b00000011) << 5;
+  if (val_r > val_g && val_r > val_b) val_r += 128;
+  else if (val_g > val_r && val_g > val_b) val_g += 128;
+  else if (val_b > val_r && val_b > val_g) val_b += 128;
+  else { val_r = 255; val_g = 255; val_b = 255; }
+
+  graphics.set_pen(val_r, val_g, val_b);
 }

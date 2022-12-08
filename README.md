@@ -2,7 +2,7 @@
 
 Tetris on the Galactic Unicorn!
 
-![demo](./doc/demo1.gif)
+![demo](./doc/demo2.gif)
 
 ## How to Flash
 
@@ -18,6 +18,8 @@ Hold the Unicorn sideways with the A/B/C/D buttons on the bottom and use the but
 - `D` Right
 
 Brightness is automatically taken care of using the light sensor. Use the 'Lux' buttons to adjust the brightness manually.
+
+Volume keys to manually decrease/increase speed or `Zzz` button to freeze the game.
 
 ### Acknowledgements
 

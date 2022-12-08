@@ -18,8 +18,12 @@ GalacticUnicorn galactic_unicorn;
 char Table[ROWS][COLS] = {0};
 int score = 0;
 bool playing;
-uint32_t speed = 400; // decrease this to make it faster
-int decrease = 10;
+bool paused = false;
+
+const uint32_t min_speed = 200;
+const uint32_t start_speed = 400; // decrease this to make it faster
+uint32_t speed;
+int speed_step = 10;
 
 typedef struct {
     char **array;
@@ -28,10 +32,10 @@ typedef struct {
 Shape current;
 
 const Shape ShapesArray[7]= {
-	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},                           //S shape     
-	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},                           //Z shape     
-	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},                           //T shape     
-	{(char *[]){(char []){0,0,1},(char []){1,1,1}, (char []){0,0,0}}, 3},                           //L shape     
+	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},                           //S shape
+	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},                           //Z shape
+	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},                           //T shape
+	{(char *[]){(char []){0,0,1},(char []){1,1,1}, (char []){0,0,0}}, 3},                           //L shape
 	{(char *[]){(char []){1,0,0},(char []){1,1,1}, (char []){0,0,0}}, 3},                           //flipped L shape    
 	{(char *[]){(char []){1,1},(char []){1,1}}, 2},                                                 //square shape
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4} //long bar shape
@@ -76,6 +80,14 @@ bool CheckPosition(Shape shape){ // Check the position of the copied shape
 
 void SetNewRandomShape(){ //updates [current] with new shape
 	Shape new_shape = CopyShape(ShapesArray[rand()%7]);
+  char col = (rand() % 255) + 1;
+  for(int i = 0; i < new_shape.width; i++) {
+    for(int j = 0; j < new_shape.width; j++) {
+      if(new_shape.array[i][j]) {
+        new_shape.array[i][j] = col;
+      }
+    }
+  }
 
   new_shape.col = rand()%(COLS-new_shape.width+1);
   new_shape.row = 0;
@@ -108,7 +120,7 @@ void RemoveFullRowsAndUpdateScore(){
 	int sum, count=0;
 	for(int i=0;i<ROWS;i++){
 		sum = 0;
-		for(int j=0;j< COLS;j++) sum+=Table[i][j];
+		for(int j=0;j< COLS;j++) sum += Table[i][j] > 0;
 
 		if(sum==COLS){
 			count++;
@@ -118,7 +130,8 @@ void RemoveFullRowsAndUpdateScore(){
 					Table[k][l]=Table[k-1][l];
 			for(l=0;l<COLS;l++)
 				Table[k][l]=0;
-			speed -= decrease--;
+			speed -= speed_step;
+      if (speed < min_speed) speed = min_speed;
 		}
 	}
 	score += 100*count;
@@ -138,11 +151,8 @@ void PrintTable(){
 
 	for(int i = 0; i < ROWS ;i++){
 		for(int j = 0; j < COLS ; j++){
-      if (Table[i][j] + Buffer[i][j]) {
-        graphics.set_pen(255, 255, 255);
-      } else {
-        graphics.set_pen(0, 0, 0);
-      }
+      char val = Table[i][j] + Buffer[i][j];
+      pen_from_byte(val);
       graphics.pixel(Point(ROWS - i, j)); // flip top-bottom
 		}
 	}
@@ -189,6 +199,7 @@ static bool do_auto_light = true;
 void auto_adjust_brightness() {
   float light_level = ((float)galactic_unicorn.light())/4095.0f;
   galactic_unicorn.set_brightness(light_level + 0.15f);
+  if (paused) galactic_unicorn.update(&graphics);
 }
 
 bool light_timer_callback(struct repeating_timer *t) {
@@ -247,7 +258,7 @@ int main() {
     struct repeating_timer light_timer;
     add_repeating_timer_ms(1000, light_timer_callback, NULL, &light_timer);
 
-    outline_text("Key 2 Start");
+    outline_text("Key 2 Start", false);
     galactic_unicorn.update(&graphics);
 //    rainbow_text("Key 2 Start", 0, check_key);
     wait_key_animate();
@@ -255,15 +266,19 @@ int main() {
     srand(millis());
 
     while(true) {
+      pen_from_byte(0);
       graphics.clear();
-      outline_text("PLAY!", true);
+      char main_colour = (rand()%255)+1;
+      outline_text("PLAY!", true, main_colour);
       galactic_unicorn.update(&graphics);
 
       uint32_t last_update = millis();
       sleep_ms(1000);
 
       score = 0;
+      speed = start_speed;
       playing = true;
+      paused = false;
 
       SetNewRandomShape();
       PrintTable();
@@ -281,12 +296,28 @@ int main() {
           continue; // we've messed with everything this loop, restart
         } else if (brightness_up) {
           galactic_unicorn.adjust_brightness(+0.01f);
+          if (paused) galactic_unicorn.update(&graphics);
           do_auto_light = false;
           sleep_ms(200);
         } else if (brightness_down) {
           galactic_unicorn.adjust_brightness(-0.01f);
+          if (paused) galactic_unicorn.update(&graphics);
           do_auto_light = false;
           sleep_ms(200);
+        }
+
+        if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_SLEEP)) {
+          paused = !paused;
+          sleep_ms(300);
+        }
+        if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_UP)) {
+          speed -= speed_step;
+          if (speed < min_speed) speed = speed;
+          sleep_ms(150);
+        } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_DOWN)) {
+          speed += speed_step;
+          if (speed > start_speed) speed = start_speed;
+          sleep_ms(150);
         }
 
         // use a vi-like keymap
@@ -304,7 +335,7 @@ int main() {
           sleep_ms(100); // less for down
         }
 
-        if (millis() - last_update > speed) {
+        if (!paused && millis() - last_update > speed) {
           ManipulateCurrent('s');
           last_update = millis();
         }
@@ -312,14 +343,14 @@ int main() {
 
       graphics.clear();
 
-      outline_text("Game Over!", true, 255, 80, 80);
+      outline_text("Game Over!", true, 0b01100101);
       galactic_unicorn.update(&graphics);
       sleep_ms(1000);
 
 //      rainbow_text("Score", 500);
 
       graphics.clear();
-      outline_text("Score", true);
+      outline_text("Score", true, main_colour);
       galactic_unicorn.update(&graphics);
       sleep_ms(500);
       graphics.clear();
