@@ -31,7 +31,9 @@ typedef struct {
 } Shape;
 Shape current;
 
-const Shape ShapesArray[7]= {
+#define NUM_SHAPES 7
+
+const Shape ShapesArray[NUM_SHAPES]= {
 	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},                           //S shape
 	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},                           //Z shape
 	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},                           //T shape
@@ -41,6 +43,8 @@ const Shape ShapesArray[7]= {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4} //long bar shape
 	// you can add any shape like it's done above. Don't be naughty.
 };
+
+char shape_colors[NUM_SHAPES] = {0}; // starting colour for each different shape, randomly assigned on startup
 
 Shape CopyShape(Shape shape){
 	Shape new_shape = shape;
@@ -79,17 +83,17 @@ bool CheckPosition(Shape shape){ // Check the position of the copied shape
 }
 
 void SetNewRandomShape(){ //updates [current] with new shape
-	Shape new_shape = CopyShape(ShapesArray[rand()%7]);
-  char col = (rand() % 255) + 1;
+  int shape_index = rand()%NUM_SHAPES;
+	Shape new_shape = CopyShape(ShapesArray[shape_index]);
   for(int i = 0; i < new_shape.width; i++) {
     for(int j = 0; j < new_shape.width; j++) {
       if(new_shape.array[i][j]) {
-        new_shape.array[i][j] = col;
+        new_shape.array[i][j] = shape_colors[shape_index];
       }
     }
   }
 
-  new_shape.col = rand()%(COLS-new_shape.width+1);
+  new_shape.col = (COLS-new_shape.width+1) / 2;
   new_shape.row = 0;
   DeleteShape(current);
   current = new_shape;
@@ -269,10 +273,12 @@ int main() {
 
     srand(millis());
 
+    for(int i=0;i<NUM_SHAPES;i++) shape_colors[i] = random_color();
+
     while(true) {
       pen_from_byte(0);
       graphics.clear();
-      char main_colour = (rand()%255)+1;
+      char main_colour = random_color();
       outline_text("PLAY!", true, main_colour);
       galactic_unicorn.update(&graphics);
 
@@ -317,7 +323,7 @@ int main() {
         }
         if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_UP)) {
           speed -= speed_step;
-          if (speed < min_speed) speed = speed;
+          if (speed < min_speed) speed = min_speed;
           sleep_ms(150);
         } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_DOWN)) {
           speed += speed_step;

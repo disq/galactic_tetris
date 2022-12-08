@@ -18,6 +18,7 @@ void text(std::string t, Point p, float s = 1.0f, float a = 1.0f);
 void rainbow_text(std::string t, uint32_t delay_ms = 0, bool (*check_func)() = nullptr);
 void outline_text(std::string text, bool reverse = false, char colour = 255);
 void pen_from_byte(char val);
+char random_color();
 
 extern PicoGraphics_PenRGB888 graphics;
 extern GalacticUnicorn galactic_unicorn;
