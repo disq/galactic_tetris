@@ -1,6 +1,6 @@
 # Galactic Tetris
 
-Tetris on the Galactic Unicorn!
+Tetris on the [Galactic Unicorn](https://shop.pimoroni.com/products/galactic-unicorn)!
 
 ![demo](./doc/demo2.gif)
 
@@ -20,6 +20,15 @@ Hold the Unicorn sideways with the A/B/C/D buttons on the bottom and use the but
 Brightness is automatically taken care of using the light sensor. Use the 'Lux' buttons to adjust the brightness manually.
 
 Volume keys to manually decrease/increase speed or `Zzz` button to freeze the game.
+
+## Build
+
+```bash
+mkdir build && cd build
+cmake ..
+make -j8
+cp -X galactic_tetris.uf2 /Volumes/RPI-RP2/ # -X is for macOS
+```
 
 ### Acknowledgements
 

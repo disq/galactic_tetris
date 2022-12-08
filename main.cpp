@@ -15,8 +15,8 @@ GalacticUnicorn galactic_unicorn;
 #define ROWS 53 // you can change height and width of table with ROWS and COLS
 #define COLS 11
 
-char Table[ROWS][COLS] = {0};
-int score = 0;
+char Table[ROWS][COLS];
+int score;
 bool playing;
 bool paused = false;
 
@@ -149,8 +149,8 @@ void PrintTable(){
   graphics.set_pen(0, 0, 0);
   graphics.clear();
 
-	for(int i = 0; i < ROWS ;i++){
-		for(int j = 0; j < COLS ; j++){
+	for(int i = 0; i < ROWS; i++){
+		for(int j = 0; j < COLS; j++){
       char val = Table[i][j] + Buffer[i][j];
       pen_from_byte(val);
       graphics.pixel(Point(ROWS - i, j)); // flip top-bottom
@@ -158,6 +158,10 @@ void PrintTable(){
 	}
 
   galactic_unicorn.update(&graphics);
+}
+
+void ClearTable() {
+  for(int i = 0; i < ROWS; i++) for(int j = 0; j < COLS; j++) Table[i][j] = 0;
 }
 
 void ManipulateCurrent(int action){
@@ -280,6 +284,7 @@ int main() {
       playing = true;
       paused = false;
 
+      ClearTable();
       SetNewRandomShape();
       PrintTable();
 
