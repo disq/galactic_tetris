@@ -17,6 +17,8 @@ Hold the Unicorn sideways with the A/B/C/D buttons on the bottom and use the but
 - `C` Up
 - `D` Right
 
+Game starts in demo/attract mode and will (badly) auto-play some games. During this time, the bottom row (when you're holding the device as intended) will light up. Use any of the A/B/C/D keys to stop the demo mode and start playing.
+
 Brightness is automatically taken care of using the light sensor. Use the 'Lux' buttons to adjust the brightness manually.
 
 Volume keys to manually decrease/increase speed or `Zzz` button to freeze the game.
