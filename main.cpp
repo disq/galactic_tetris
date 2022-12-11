@@ -122,7 +122,14 @@ bool CheckPosition(Shape shape){ // Check the position of the copied shape
 }
 
 void SetNewRandomShape(){ //updates [current] with new shape
-  int shape_index = rand()%NUM_SHAPES;
+  static int old_shape_index = -1;
+  int shape_index;
+
+  do {
+    shape_index = rand() % NUM_SHAPES;
+  } while (shape_index == old_shape_index);
+  old_shape_index = shape_index;
+
 	Shape new_shape = CopyShape(ShapesArray[shape_index]);
   for(int i = 0; i < new_shape.width; i++) {
     for(int j = 0; j < new_shape.width; j++) {
@@ -466,7 +473,7 @@ int main() {
 
     srand(millis());
 
-    for(int i=0;i<NUM_SHAPES;i++) shape_colors[i] = random_color();
+    for(int i=0;i<NUM_SHAPES;i++) shape_colors[i] = random_color(shape_colors, i);
 
     autoplay = true;
 

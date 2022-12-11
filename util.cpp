@@ -123,13 +123,21 @@ void pen_from_byte(char val) {
   graphics.set_pen(val_r, val_g, val_b);
 }
 
-char random_color() {
+char random_color(char *except, int len) {
   const char mask = 0b00101101; // don't want similar colours to the old one
   static char oldColor = 0;
   char col;
 
   do {
     col = (rand() % 255) + 1;
+
+    for (int i = 0; i < len; i++) {
+      if ((col & mask) == (except[i] & mask)) {
+        col = oldColor; // continue outer loop
+        break;
+      }
+    }
+
   }while((col & mask) == (oldColor & mask));
 
   oldColor = col;
