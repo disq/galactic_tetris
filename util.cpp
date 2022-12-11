@@ -106,9 +106,11 @@ void outline_text(std::string text, bool reverse, char colour) {
   graphics.text(text, Point(x, y), -1, 1);
 }
 
-void pen_from_byte(char val) {
+void rgb_from_byte(char val, uint8_t *r, uint8_t *g, uint8_t *b) {
   if (val == 0) {
-    graphics.set_pen(0, 0, 0);
+    *r = 0;
+    *g = 0;
+    *b = 0;
     return;
   }
 
@@ -120,7 +122,15 @@ void pen_from_byte(char val) {
   else if (val_b > val_r && val_b > val_g) val_b += 128;
   else { val_r = 255; val_g = 255; val_b = 255; }
 
-  graphics.set_pen(val_r, val_g, val_b);
+  *r = val_r;
+  *g = val_g;
+  *b = val_b;
+}
+
+void pen_from_byte(char val) {
+  uint8_t r, g, b;
+  rgb_from_byte(val, &r, &g, &b);
+  graphics.set_pen(r, g, b);
 }
 
 char random_color(char *except, int len) {

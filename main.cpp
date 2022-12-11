@@ -21,6 +21,7 @@ bool playing;
 bool paused = false;
 bool autoplay = false;
 bool exit_autoplay = false;
+int next_shape_index = -1;
 
 const uint32_t min_speed = 200;
 const uint32_t start_speed = 400; // decrease this to make it faster
@@ -121,14 +122,34 @@ bool CheckPosition(Shape shape){ // Check the position of the copied shape
 	return true;
 }
 
-void SetNewRandomShape(){ //updates [current] with new shape
+int ChooseRandomShape() {
   static int old_shape_index = -1;
   int shape_index;
+/*
+  if (old_shape_index == -1) {
+    shape_index = 5;
+  } else if (old_shape_index == 5) {
+    shape_index = 6;
+  } else {
+    shape_index = 5;
+  }
+  old_shape_index = shape_index;
+  return shape_index;
+*/
 
   do {
     shape_index = rand() % NUM_SHAPES;
   } while (shape_index == old_shape_index);
   old_shape_index = shape_index;
+  return shape_index;;
+}
+
+void SetNewRandomShape(){ //updates [current] with new shape
+  if (next_shape_index == -1) {
+    next_shape_index = ChooseRandomShape();
+  }
+  int shape_index = next_shape_index;
+  next_shape_index = ChooseRandomShape();
 
 	Shape new_shape = CopyShape(ShapesArray[shape_index]);
   for(int i = 0; i < new_shape.width; i++) {
@@ -197,6 +218,37 @@ void PrintTable() {
 
   graphics.set_pen(0, 0, 0);
   graphics.clear();
+
+  // print next shape
+  if (next_shape_index > -1) {
+    uint8_t r, g, b;
+    rgb_from_byte(shape_colors[next_shape_index], &r, &g, &b);
+    r /= 4;
+    g /= 4;
+    b /= 4;
+    graphics.set_pen(r, g, b);
+
+    const Shape *next = &ShapesArray[next_shape_index];
+    int eff_height = next->width;
+    int start_height = -1;
+    bool had_blocks = false;
+    for(int i = 0; i < next->width; i++) {
+      bool has_blocks = false;
+      for (int j = 0; j < next->width; j++)
+        if (next->array[i][j] > 0) {
+          has_blocks = true;
+          had_blocks = true;
+          break;
+        }
+      if (!has_blocks && !had_blocks) eff_height--;
+      else if (start_height == -1) start_height = i;
+    }
+
+    for(int i = start_height; i < eff_height; i++) {
+      for (int j = 0; j < next->width; j++)
+        if (next->array[i][j] > 0) graphics.pixel(Point(ROWS - (i - start_height) - eff_height, COLS - next->width + j));
+    }
+  }
 
 	for(int i = 0; i < ROWS; i++){
 		for(int j = 0; j < COLS; j++){
@@ -488,6 +540,7 @@ int main() {
       sleep_ms(700);
 
       score = 0;
+      next_shape_index = -1;
       speed = start_speed;
       playing = true;
       paused = false;

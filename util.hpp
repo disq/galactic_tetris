@@ -17,6 +17,7 @@ void from_hsv(float h, float s, float v, uint8_t &r, uint8_t &g, uint8_t &b);
 void text(std::string t, Point p, float s = 1.0f, float a = 1.0f);
 void rainbow_text(std::string t, uint32_t delay_ms = 0, bool (*check_func)() = nullptr);
 void outline_text(std::string text, bool reverse = false, char colour = 255);
+void rgb_from_byte(char val, uint8_t *r, uint8_t *g, uint8_t *b);
 void pen_from_byte(char val);
 char random_color(char *except = nullptr, int len = 0);
 
