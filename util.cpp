@@ -134,7 +134,7 @@ void pen_from_byte(char val) {
 }
 
 char random_color(char *except, int len) {
-  const char mask = 0b00101101; // don't want similar colours to the old one
+  const char mask = 0b01010010; // don't want similar colours to the old one: compare only highest bits
   static char oldColor = 0;
   char col;
 
