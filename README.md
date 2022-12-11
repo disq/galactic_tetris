@@ -2,7 +2,7 @@
 
 Tetris on the [Galactic Unicorn](https://shop.pimoroni.com/products/galactic-unicorn)!
 
-![demo](./doc/demo2.gif)
+![demo](./doc/demo3.gif)
 
 ## How to Flash
 

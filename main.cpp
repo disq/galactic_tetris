@@ -14,6 +14,7 @@ PicoGraphics_PenRGB888 graphics(53, 11, nullptr);
 GalacticUnicorn galactic_unicorn;
 
 #define ROWS 53 // you can change height and width of table with ROWS and COLS
+//#define ROWS 23 // you can change height and width of table with ROWS and COLS
 #define COLS 11
 
 char Table[ROWS][COLS];
@@ -490,13 +491,15 @@ void auto_play() {
     if (loopy_sleep(250)) return;
   }
 
-  while (current.col != col) {
+  int max_col_moves = abs(current.col - col) + 1;
+  while (current.col != col && max_col_moves > 0) {
     if (current.col < col) {
       if (ManipulateCurrent('d')) return;
     } else {
       if (ManipulateCurrent('a')) return;
     }
     if (loopy_sleep(100)) return;
+    max_col_moves--;
   }
 
   while (current.row != row) {
