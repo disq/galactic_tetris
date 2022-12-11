@@ -6,6 +6,7 @@
 #include "libraries/pico_graphics/pico_graphics.hpp"
 #include "galactic_unicorn.hpp"
 #include "util.hpp"
+#include "hardware/adc.h"
 
 using namespace pimoroni;
 
@@ -504,26 +505,35 @@ void auto_play() {
   }
 }
 
+void rnd_seed() {
+  adc_init();
+  adc_gpio_init(GalacticUnicorn::SWITCH_SLEEP); // Sleep button is on the ADC... so we do this before initializing the GU.
+  adc_select_input(1);
+  uint32_t total = 0;
+  for(int i = 0; i < 16; i++) {
+    uint16_t val = adc_read();
+    if (i % 2 == 1) total += ((val & 2) << i); // last 2 bits... positional
+  }
+  srand(total);
+}
+
 int main() {
     stdio_init_all();
+    rnd_seed();
+
     galactic_unicorn.init();
     init_hue_map();
+    auto_adjust_brightness();
 
     graphics.set_pen(0, 0, 0);
     graphics.clear();
     galactic_unicorn.update(&graphics);
-
-    auto_adjust_brightness();
+    outline_text(" T E T R I S", true, random_color());
+    galactic_unicorn.update(&graphics);
+    sleep_ms(1000);
 
     struct repeating_timer light_timer;
     add_repeating_timer_ms(1000, light_timer_callback, NULL, &light_timer);
-
-    outline_text("Key 2 Start", false);
-    galactic_unicorn.update(&graphics);
-//    rainbow_text("Key 2 Start", 0, check_key);
-    wait_key_animate();
-
-    srand(millis());
 
     for(int i=0;i<NUM_SHAPES;i++) shape_colors[i] = random_color(shape_colors, i);
 
