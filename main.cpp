@@ -225,9 +225,9 @@ void PrintTable() {
   if (next_shape_index > -1) {
     uint8_t r, g, b;
     rgb_from_byte(shape_colors[next_shape_index], &r, &g, &b);
-    r /= 4;
-    g /= 4;
-    b /= 4;
+    r >>= 2;
+    g >>= 2;
+    b >>= 2;
     graphics.set_pen(r, g, b);
 
     const Shape *next = &ShapesArray[next_shape_index];
@@ -378,7 +378,7 @@ bool SolveCurrent(int *NumRotations, int *Row, int *Column){
         for (int j = 0; j < COLS; j++)
           if (tableCopy[i][j] == 0) holes_below++;
 
-      printf("[rot:%d] full rows:%d fill_cols:%d holes:%d\n", rot_index, full_rows, fill_cols, holes_below);
+//      printf("[rot:%d] full rows:%d fill_cols:%d holes:%d\n", rot_index, full_rows, fill_cols, holes_below);
 
       if (full_rows > max_full_rows ||
       (full_rows == max_full_rows && holes_below < min_holes_below) ||
@@ -391,7 +391,7 @@ bool SolveCurrent(int *NumRotations, int *Row, int *Column){
         good_col = temp.col;
         good_rot = rot_index;
         valid = true;
-        printf("Solve candidate: Row:%d Col:%d Rot:%d // Full:%d Fill:%d Holes:%d\n", max_row, good_col, good_rot, full_rows, fill_cols, holes_below);
+//        printf("Solve candidate: Row:%d Col:%d Rot:%d // Full:%d Fill:%d Holes:%d\n", max_row, good_col, good_rot, full_rows, fill_cols, holes_below);
       }
     }
 
@@ -469,7 +469,7 @@ bool loopy_sleep(int ms) {
   return false;
 }
 
-void auto_play() {
+void auto_play(bool recursed = false) {
   int num_rotations, row, col;
   if (!SolveCurrent(&num_rotations, &row, &col)) return;
 
@@ -478,7 +478,7 @@ void auto_play() {
   int moves = num_rotations + abs(current.col - col);
 
   int row_diff = row - current.row;
-  if (moves > 0 && row_diff > moves + start_moves_after_rows) {
+  if (!recursed && moves > 0 && row_diff > moves + start_moves_after_rows) {
     if (row_diff > start_moves_after_rows) row_diff = start_moves_after_rows;
     for(int i=0;i<row_diff;i++) {
       if (ManipulateCurrent('s')) return;
@@ -502,10 +502,14 @@ void auto_play() {
     max_col_moves--;
   }
 
-  while (current.row != row) {
-    if (ManipulateCurrent('s')) return;
-    if (loopy_sleep(50)) return;
-  }
+  if (ManipulateCurrent('s')) return;
+  if (loopy_sleep(50)) return;
+  auto_play(true); // solve again
+
+//  while (current.row != row) {
+//    if (ManipulateCurrent('s')) return;
+//    if (loopy_sleep(50)) return;
+//  }
 }
 
 void rnd_seed() {
