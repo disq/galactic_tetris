@@ -541,6 +541,12 @@ int main() {
       graphics.clear();
       outline_text(std::to_string(score));
       galactic_unicorn.update(&graphics);
+
+      if (autoplay) {
+        sleep_ms(1000);
+        continue;
+      }
+
       wait_key_animate();
 
 //      rainbow_text(std::to_string(score), 0, check_key);
