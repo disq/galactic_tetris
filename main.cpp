@@ -278,6 +278,7 @@ bool ManipulateCurrent(int action){
 			if(CheckPosition(temp))
 				current.row++;
 			else {
+        DeleteShape(temp);
 				WriteToTable();
 				RemoveFullRowsAndUpdateScore();
         SetNewRandomShape();
@@ -328,6 +329,8 @@ bool SolveCurrent(int *NumRotations, int *Row, int *Column){
   int min_holes_below = COLS * ROWS; // second most important
   int max_fill_cols = 0; // third most important
   int max_row = temp.row; // least important
+  // TODO max_row calculation is wrong, counts from the top so an upright rotation will always use compared to the flat version
+  // After it's fixed it could be the most important factor in terms of preventing incomplete rows at the bottom
 
   bool valid = false;
 
