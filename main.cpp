@@ -10,11 +10,11 @@
 
 using namespace pimoroni;
 
-PicoGraphics_PenRGB888 graphics(16, 20, nullptr);
-LEDMatrix led_matrix(&graphics, pio0, 0, 6);
-
 #define ROWS 16 // you can change height and width of table with ROWS and COLS
-#define COLS 20
+#define COLS 10
+
+PicoGraphics_PenRGB888 graphics(ROWS, COLS, nullptr);
+LEDMatrix led_matrix(&graphics, pio0, 0, 6);
 
 char Table[ROWS][COLS];
 int score;
