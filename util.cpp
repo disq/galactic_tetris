@@ -32,8 +32,8 @@ void from_hsv(float h, float s, float v, uint8_t &r, uint8_t &g, uint8_t &b) {
 
 void text(std::string t, Point p, float s, float a) {
   int w = graphics.measure_text(t, s);
-  p.x += (53 / 2) - (w / 2);
-  p.y += (11 / 2);
+  p.x += (graphics.bounds.w / 2) - (w / 2);
+  p.y += (graphics.bounds.h / 2);
   graphics.text(t, Point(p.x, p.y), -1, s, a);
   graphics.text(t, Point(p.x + 1, p.y), -1, s, a);
   graphics.text(t, Point(p.x + 1, p.y + 1), -1, s, a);
@@ -81,7 +81,7 @@ void rainbow_text(std::string t, uint32_t delay_ms, bool (*check_func)()) {
       graphics.pixel(Point(x, y));
     }
 
-    galactic_unicorn.update(&graphics);
+    led_matrix.update(&graphics);
   }
 }
 
@@ -90,7 +90,7 @@ void outline_text(std::string text, bool reverse, char colour) {
 //  uint8_t v = (sin(float(millis()) / 100.0f) + 1.0f) * 127.0f;
   uint w = graphics.measure_text(text, 1);
 
-  int x = 53 / 2 - w / 2 + 1, y = 2;
+  int x = graphics.bounds.w / 2 - w / 2 + 1, y = 2;
 
   pen_from_byte(reverse ? colour : 0);
   graphics.text(text, Point(x - 1, y - 1), -1, 1);

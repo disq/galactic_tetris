@@ -6,9 +6,8 @@
 #include <cstring>
 #include <math.h>
 #include "pico/stdlib.h"
-
+#include "led_matrix.h"
 #include "libraries/pico_graphics/pico_graphics.hpp"
-#include "galactic_unicorn.hpp"
 
 using namespace pimoroni;
 
@@ -22,6 +21,6 @@ void pen_from_byte(char val);
 char random_color(char *except = nullptr, int len = 0);
 
 extern PicoGraphics_PenRGB888 graphics;
-extern GalacticUnicorn galactic_unicorn;
+extern LEDMatrix led_matrix;
 
 #endif //GALACTIC_TETRIS_UTIL_H

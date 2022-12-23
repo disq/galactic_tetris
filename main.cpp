@@ -4,18 +4,17 @@
 #include "pico/stdlib.h"
 
 #include "libraries/pico_graphics/pico_graphics.hpp"
-#include "galactic_unicorn.hpp"
+#include "led_matrix.h"
 #include "util.hpp"
 #include "hardware/adc.h"
 
 using namespace pimoroni;
 
-PicoGraphics_PenRGB888 graphics(53, 11, nullptr);
-GalacticUnicorn galactic_unicorn;
+PicoGraphics_PenRGB888 graphics(16, 20, nullptr);
+LEDMatrix led_matrix(&graphics, pio0, 0, 6);
 
-#define ROWS 53 // you can change height and width of table with ROWS and COLS
-//#define ROWS 23 // you can change height and width of table with ROWS and COLS
-#define COLS 11
+#define ROWS 16 // you can change height and width of table with ROWS and COLS
+#define COLS 20
 
 char Table[ROWS][COLS];
 int score;
@@ -52,10 +51,7 @@ const Shape ShapesArray[NUM_SHAPES]= {
 char shape_colors[NUM_SHAPES] = {0}; // starting colour for each different shape, randomly assigned on startup
 
 bool check_key() {
-  return galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_A) ||
-         galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_B) ||
-         galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_C) ||
-         galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_D);
+  return false;
 }
 
 void key_animate() {
@@ -82,7 +78,7 @@ void key_animate() {
 void wait_key_animate() {
   while(true) {
     key_animate();
-    galactic_unicorn.update(&graphics);
+    led_matrix.update(&graphics);
     for(int i = 0; i < 50; i++) {
       if (check_key()) return;
       sleep_ms(10);
@@ -263,7 +259,7 @@ void PrintTable() {
 
   if (autoplay) key_animate();
 
-  galactic_unicorn.update(&graphics);
+  led_matrix.update(&graphics);
 }
 
 void ClearTable() {
@@ -310,9 +306,9 @@ bool ManipulateCurrent(int action){
 static bool do_auto_light = true;
 
 void auto_adjust_brightness() {
-  float light_level = ((float)galactic_unicorn.light())/4095.0f;
-  galactic_unicorn.set_brightness(light_level + 0.15f);
-  if (paused) galactic_unicorn.update(&graphics);
+//  float light_level = ((float)galactic_unicorn.light())/4095.0f;
+//  galactic_unicorn.set_brightness(light_level + 0.15f);
+//  if (paused) galactic_unicorn.update(&graphics);
 }
 
 bool light_timer_callback(struct repeating_timer *t) {
@@ -412,6 +408,7 @@ bool SolveCurrent(int *NumRotations, int *Row, int *Column){
 }
 
 bool loop_things(bool paused_check = true) {
+/*
   bool brightness_up = galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_BRIGHTNESS_UP);
   bool brightness_down = galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_BRIGHTNESS_DOWN);
   if (brightness_up && brightness_down) {
@@ -447,7 +444,7 @@ bool loop_things(bool paused_check = true) {
     if (speed > start_speed) speed = start_speed;
     else sleep_ms(150);
   }
-
+*/
   if (autoplay && check_key()) {
     exit_autoplay = true;
   }
@@ -455,7 +452,7 @@ bool loop_things(bool paused_check = true) {
   if (paused_check) {
     while(paused) {
       loop_things(false);
-      galactic_unicorn.update(&graphics);
+      led_matrix.update(&graphics);
       sleep_ms(10);
     }
   }
@@ -517,7 +514,7 @@ void auto_play(bool recursed = false) {
 
 void rnd_seed() {
   adc_init();
-  adc_gpio_init(GalacticUnicorn::SWITCH_SLEEP); // Sleep button is on the ADC... so we do this before initializing the GU.
+  adc_gpio_init(27);
   adc_select_input(1);
   uint32_t total = 0;
   for(int i = 0; i < 16; i++) {
@@ -530,16 +527,14 @@ void rnd_seed() {
 int main() {
     stdio_init_all();
     rnd_seed();
-
-    galactic_unicorn.init();
     init_hue_map();
     auto_adjust_brightness();
 
     graphics.set_pen(0, 0, 0);
     graphics.clear();
-    galactic_unicorn.update(&graphics);
+    led_matrix.update(&graphics);
     outline_text(" T E T R I S", true, random_color());
-    galactic_unicorn.update(&graphics);
+    led_matrix.update(&graphics);
     sleep_ms(1000);
 
     struct repeating_timer light_timer;
@@ -554,7 +549,7 @@ int main() {
       graphics.clear();
       char main_colour = random_color();
       outline_text(autoplay ? "DEMO" : "PLAY!", true, main_colour);
-      galactic_unicorn.update(&graphics);
+      led_matrix.update(&graphics);
 
       uint32_t last_update = millis();
       sleep_ms(700);
@@ -576,7 +571,7 @@ int main() {
           auto_play();
           if (exit_autoplay) break;
         } else {
-
+/*
           // use a vi-like keymap
           if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_A)) {
             ManipulateCurrent('a');
@@ -591,6 +586,7 @@ int main() {
             ManipulateCurrent('s');
             sleep_ms(100); // less for down
           }
+*/
         }
 
         if (!paused && millis() - last_update > speed) {
@@ -609,18 +605,18 @@ int main() {
 
 
       outline_text("Game Over!", true, 0b01100101);
-      galactic_unicorn.update(&graphics);
+      led_matrix.update(&graphics);
       sleep_ms(1000);
 
 //      rainbow_text("Score", 500);
 
       graphics.clear();
       outline_text("Score", true, main_colour);
-      galactic_unicorn.update(&graphics);
+      led_matrix.update(&graphics);
       sleep_ms(500);
       graphics.clear();
       outline_text(std::to_string(score));
-      galactic_unicorn.update(&graphics);
+      led_matrix.update(&graphics);
 
       if (autoplay) {
         sleep_ms(1000);
