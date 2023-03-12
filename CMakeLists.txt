@@ -20,9 +20,9 @@ set(PICO_CXX_ENABLE_RTTI 1)
 pico_sdk_init()
 
 include(${PIMORONI_PICO_PATH}/libraries/pico_graphics/pico_graphics.cmake)
-include(${PIMORONI_PICO_PATH}/libraries/galactic_unicorn/galactic_unicorn.cmake)
-include(${PIMORONI_PICO_PATH}/libraries/bitmap_fonts/bitmap_fonts.cmake)
-include(${PIMORONI_PICO_PATH}/libraries/hershey_fonts/hershey_fonts.cmake)
+include(${PIMORONI_PICO_PATH}/libraries/cosmic_unicorn/cosmic_unicorn.cmake)
+#include(${PIMORONI_PICO_PATH}/libraries/bitmap_fonts/bitmap_fonts.cmake)
+#include(${PIMORONI_PICO_PATH}/libraries/hershey_fonts/hershey_fonts.cmake)
 
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
@@ -39,7 +39,7 @@ target_link_libraries(${NAME}
         hardware_pwm
         hardware_pio
         pico_graphics
-        galactic_unicorn
+        cosmic_unicorn
         hardware_gpio
         pico_bootsel_via_double_reset
 )

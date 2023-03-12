@@ -81,7 +81,7 @@ void rainbow_text(std::string t, uint32_t delay_ms, bool (*check_func)()) {
       graphics.pixel(Point(x, y));
     }
 
-    galactic_unicorn.update(&graphics);
+    unicorn.update(&graphics);
   }
 }
 

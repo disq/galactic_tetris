@@ -4,18 +4,18 @@
 #include "pico/stdlib.h"
 
 #include "libraries/pico_graphics/pico_graphics.hpp"
-#include "galactic_unicorn.hpp"
+#include "cosmic_unicorn.hpp"
 #include "util.hpp"
 #include "hardware/adc.h"
 
 using namespace pimoroni;
 
-PicoGraphics_PenRGB888 graphics(53, 11, nullptr);
-GalacticUnicorn galactic_unicorn;
+PicoGraphics_PenRGB888 graphics(32, 32, nullptr);
+CosmicUnicorn unicorn;
 
-#define ROWS 53 // you can change height and width of table with ROWS and COLS
+#define ROWS 32 // you can change height and width of table with ROWS and COLS
 //#define ROWS 23 // you can change height and width of table with ROWS and COLS
-#define COLS 11
+#define COLS 32
 
 char Table[ROWS][COLS];
 int score;
@@ -52,10 +52,10 @@ const Shape ShapesArray[NUM_SHAPES]= {
 char shape_colors[NUM_SHAPES] = {0}; // starting colour for each different shape, randomly assigned on startup
 
 bool check_key() {
-  return galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_A) ||
-         galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_B) ||
-         galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_C) ||
-         galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_D);
+  return unicorn.is_pressed(CosmicUnicorn::SWITCH_A) ||
+         unicorn.is_pressed(CosmicUnicorn::SWITCH_B) ||
+         unicorn.is_pressed(CosmicUnicorn::SWITCH_C) ||
+         unicorn.is_pressed(CosmicUnicorn::SWITCH_D);
 }
 
 void key_animate() {
@@ -82,7 +82,7 @@ void key_animate() {
 void wait_key_animate() {
   while(true) {
     key_animate();
-    galactic_unicorn.update(&graphics);
+    unicorn.update(&graphics);
     for(int i = 0; i < 50; i++) {
       if (check_key()) return;
       sleep_ms(10);
@@ -263,7 +263,7 @@ void PrintTable() {
 
   if (autoplay) key_animate();
 
-  galactic_unicorn.update(&graphics);
+  unicorn.update(&graphics);
 }
 
 void ClearTable() {
@@ -310,9 +310,9 @@ bool ManipulateCurrent(int action){
 static bool do_auto_light = true;
 
 void auto_adjust_brightness() {
-  float light_level = ((float)galactic_unicorn.light())/4095.0f;
-  galactic_unicorn.set_brightness(light_level + 0.15f);
-  if (paused) galactic_unicorn.update(&graphics);
+  float light_level = ((float)unicorn.light())/4095.0f;
+  unicorn.set_brightness(light_level + 0.15f);
+  if (paused) unicorn.update(&graphics);
 }
 
 bool light_timer_callback(struct repeating_timer *t) {
@@ -412,10 +412,10 @@ bool SolveCurrent(int *NumRotations, int *Row, int *Column){
 }
 
 bool loop_things(bool paused_check = true) {
-  bool brightness_up = galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_BRIGHTNESS_UP);
-  bool brightness_down = galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_BRIGHTNESS_DOWN);
+  bool brightness_up = unicorn.is_pressed(CosmicUnicorn::SWITCH_BRIGHTNESS_UP);
+  bool brightness_down = unicorn.is_pressed(CosmicUnicorn::SWITCH_BRIGHTNESS_DOWN);
   if (brightness_up && brightness_down) {
-    galactic_unicorn.set_brightness(0.0f);
+    unicorn.set_brightness(0.0f);
     do_auto_light = true;
     sleep_ms(100);
     auto_adjust_brightness();
@@ -423,26 +423,26 @@ bool loop_things(bool paused_check = true) {
     sleep_ms(500);
     return false;
   } else if (brightness_up) {
-    galactic_unicorn.adjust_brightness(+0.01f);
-    if (paused) galactic_unicorn.update(&graphics);
+    unicorn.adjust_brightness(+0.01f);
+    if (paused) unicorn.update(&graphics);
     do_auto_light = false;
     sleep_ms(200);
   } else if (brightness_down) {
-    galactic_unicorn.adjust_brightness(-0.01f);
-    if (paused) galactic_unicorn.update(&graphics);
+    unicorn.adjust_brightness(-0.01f);
+    if (paused) unicorn.update(&graphics);
     do_auto_light = false;
     sleep_ms(200);
   }
 
-  if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_SLEEP)) {
+  if (unicorn.is_pressed(CosmicUnicorn::SWITCH_SLEEP)) {
     paused = !paused;
     sleep_ms(300);
   }
-  if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_UP)) {
+  if (unicorn.is_pressed(CosmicUnicorn::SWITCH_VOLUME_UP)) {
     speed -= speed_step;
     if (speed < min_speed) speed = min_speed;
     else sleep_ms(150);
-  } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_VOLUME_DOWN)) {
+  } else if (unicorn.is_pressed(CosmicUnicorn::SWITCH_VOLUME_DOWN)) {
     speed += speed_step;
     if (speed > start_speed) speed = start_speed;
     else sleep_ms(150);
@@ -455,7 +455,7 @@ bool loop_things(bool paused_check = true) {
   if (paused_check) {
     while(paused) {
       loop_things(false);
-      galactic_unicorn.update(&graphics);
+      unicorn.update(&graphics);
       sleep_ms(10);
     }
   }
@@ -517,7 +517,7 @@ void auto_play(bool recursed = false) {
 
 void rnd_seed() {
   adc_init();
-  adc_gpio_init(GalacticUnicorn::SWITCH_SLEEP); // Sleep button is on the ADC... so we do this before initializing the GU.
+  adc_gpio_init(CosmicUnicorn::SWITCH_SLEEP); // Sleep button is on the ADC... so we do this before initializing the GU.
   adc_select_input(1);
   uint32_t total = 0;
   for(int i = 0; i < 16; i++) {
@@ -531,15 +531,15 @@ int main() {
     stdio_init_all();
     rnd_seed();
 
-    galactic_unicorn.init();
+    unicorn.init();
     init_hue_map();
     auto_adjust_brightness();
 
     graphics.set_pen(0, 0, 0);
     graphics.clear();
-    galactic_unicorn.update(&graphics);
+    unicorn.update(&graphics);
     outline_text(" T E T R I S", true, random_color());
-    galactic_unicorn.update(&graphics);
+    unicorn.update(&graphics);
     sleep_ms(1000);
 
     struct repeating_timer light_timer;
@@ -554,7 +554,7 @@ int main() {
       graphics.clear();
       char main_colour = random_color();
       outline_text(autoplay ? "DEMO" : "PLAY!", true, main_colour);
-      galactic_unicorn.update(&graphics);
+      unicorn.update(&graphics);
 
       uint32_t last_update = millis();
       sleep_ms(700);
@@ -578,16 +578,16 @@ int main() {
         } else {
 
           // use a vi-like keymap
-          if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_A)) {
+          if (unicorn.is_pressed(CosmicUnicorn::SWITCH_A)) {
             ManipulateCurrent('a');
             sleep_ms(200);
-          } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_D)) {
+          } else if (unicorn.is_pressed(CosmicUnicorn::SWITCH_D)) {
             ManipulateCurrent('d');
             sleep_ms(200);
-          } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_C)) {
+          } else if (unicorn.is_pressed(CosmicUnicorn::SWITCH_C)) {
             ManipulateCurrent('w');
             sleep_ms(300); // delay more for rotate
-          } else if (galactic_unicorn.is_pressed(GalacticUnicorn::SWITCH_B)) {
+          } else if (unicorn.is_pressed(CosmicUnicorn::SWITCH_B)) {
             ManipulateCurrent('s');
             sleep_ms(100); // less for down
           }
@@ -609,18 +609,18 @@ int main() {
 
 
       outline_text("Game Over!", true, 0b01100101);
-      galactic_unicorn.update(&graphics);
+      unicorn.update(&graphics);
       sleep_ms(1000);
 
 //      rainbow_text("Score", 500);
 
       graphics.clear();
       outline_text("Score", true, main_colour);
-      galactic_unicorn.update(&graphics);
+      unicorn.update(&graphics);
       sleep_ms(500);
       graphics.clear();
       outline_text(std::to_string(score));
-      galactic_unicorn.update(&graphics);
+      unicorn.update(&graphics);
 
       if (autoplay) {
         sleep_ms(1000);

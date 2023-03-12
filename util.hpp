@@ -8,7 +8,7 @@
 #include "pico/stdlib.h"
 
 #include "libraries/pico_graphics/pico_graphics.hpp"
-#include "galactic_unicorn.hpp"
+#include "cosmic_unicorn.hpp"
 
 using namespace pimoroni;
 
@@ -22,6 +22,6 @@ void pen_from_byte(char val);
 char random_color(char *except = nullptr, int len = 0);
 
 extern PicoGraphics_PenRGB888 graphics;
-extern GalacticUnicorn galactic_unicorn;
+extern CosmicUnicorn unicorn;
 
 #endif //GALACTIC_TETRIS_UTIL_H
